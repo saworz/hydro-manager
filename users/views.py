@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
-from users.serializers import UserLoginSerializer, UserSerializer
+from users.serializers import UserLoginSerializer, UserRegisterSerializer
 
 
 class UserRegisterView(APIView):
@@ -12,7 +12,7 @@ class UserRegisterView(APIView):
     authentication_classes = []
 
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = UserRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         response_data = {"message": "User created successfully."}
