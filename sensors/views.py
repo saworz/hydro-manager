@@ -1,4 +1,3 @@
-from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -102,6 +101,10 @@ class SensorListView(APIView):
 
 class MeasurementCreateView(APIView):
     def post(self, request, id):
+        data, error = self.clean(request.data)
+        if error:
+            return Response(data, status=error)
+
         user_systems = request.user.systems.all()
         target_system = user_systems.filter(id=id)
         if not target_system:
@@ -113,14 +116,28 @@ class MeasurementCreateView(APIView):
             return Response(response_data, status=status.HTTP_404_NOT_FOUND)
 
         sensors = Sensor.objects.filter(system__in=target_system)
-        measured_at = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
-        for measurement in request.data:
-            sensor_id = measurement["sensor_id"]
-            value = measurement["value"]
-            sensor = sensors.filter(id=sensor_id).first()
-            if sensor:
-                Measurement.objects.create(
-                    sensor=sensor, value=value, measured_at=measured_at
-                )
+        sensor = sensors.filter(id=data.get("sensor_id")).first()
 
+        if not sensor:
+            response_data = {
+                "error": "INVALID_SENSOR_ID",
+                "errorMessage": "Sensor with this ID doesn't exist in this system.",
+                "sensor_id": data.get("sensor_id"),
+            }
+            return Response(response_data, status=status.HTTP_404_NOT_FOUND)
+
+        Measurement.objects.create(sensor=sensor, value=data.get("value"))
         return Response(status=status.HTTP_201_CREATED)
+
+    def clean(self, data: dict) -> (dict, int | None):
+        sensor_id = data.get("sensor_id")
+        if not sensor_id:
+            error_data = {
+                "error": "MISSING_SENSOR_ID",
+                "errorMessage": "Please provide a valid sensor id for this system.",
+            }
+            return error_data, status.HTTP_400_BAD_REQUEST
+
+        value = data.get("value")
+        clean_data = {"sensor_id": sensor_id, "value": value}
+        return clean_data, None
