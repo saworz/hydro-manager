@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import HydroSystem
-from .serializers import HydroSystemSerializer
+from .serializers import HydroMeasurementsSerializer, HydroSystemSerializer
 
 
 class SystemCreateView(APIView):
@@ -56,7 +56,7 @@ class SystemDetailView(APIView):
                 "id": id,
             }
             return Response(response_data, status=status.HTTP_404_NOT_FOUND)
-        serializer = HydroSystemSerializer(system)
+        serializer = HydroMeasurementsSerializer(system)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
