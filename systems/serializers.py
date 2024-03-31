@@ -15,7 +15,14 @@ class HydroMeasurementsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HydroSystem
-        fields = ["id", "owner", "description", "created_at", "newest_measurements"]
+        fields = [
+            "id",
+            "owner",
+            "name",
+            "description",
+            "created_at",
+            "newest_measurements",
+        ]
 
 
 class HydroSystemSerializer(serializers.ModelSerializer):
