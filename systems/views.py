@@ -1,12 +1,23 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from users.serializers import MessageSerializer
+
 from .models import HydroSystem
-from .serializers import HydroMeasurementsSerializer, HydroSystemSerializer
+from .serializers import (CreateSystemSerializer, ErrorMessageSerializer,
+                          HydroMeasurementsSerializer, HydroSystemSerializer)
 
 
 class SystemCreateView(APIView):
+    """Create new hydro system for authenticated user."""
+
+    serializer_class = CreateSystemSerializer
+
+    @extend_schema(
+        responses={200: HydroSystemSerializer, 400: ErrorMessageSerializer},
+    )
     def post(self, request):
         data, error = self.clean(request.data)
         if error:
@@ -45,6 +56,13 @@ class SystemCreateView(APIView):
 
 
 class SystemDetailView(APIView):
+    """Get system's details for specified system id."""
+
+    serializer_class = None
+
+    @extend_schema(
+        responses={200: HydroMeasurementsSerializer, 400: ErrorMessageSerializer},
+    )
     def get(self, request, id):
         user_systems = request.user.systems.all()
         system = user_systems.filter(id=id).first()
@@ -61,6 +79,13 @@ class SystemDetailView(APIView):
 
 
 class SystemUpdateView(APIView):
+    """Update an existing system's data."""
+
+    serializer_class = None
+
+    @extend_schema(
+        responses={200: HydroSystemSerializer, 400: ErrorMessageSerializer},
+    )
     def patch(self, request, id):
         user_systems = request.user.systems.all()
         system = user_systems.filter(id=id).first()
@@ -94,6 +119,13 @@ class SystemUpdateView(APIView):
 
 
 class SystemDeleteView(APIView):
+    """Delete an existing user's system."""
+
+    serializer_class = None
+
+    @extend_schema(
+        responses={200: MessageSerializer, 400: ErrorMessageSerializer},
+    )
     def delete(self, request, id):
         user_systems = request.user.systems.all()
         system = user_systems.filter(id=id).first()
@@ -111,6 +143,15 @@ class SystemDeleteView(APIView):
 
 
 class SystemListView(APIView):
+    """List all systems that belong to the authenticated user."""
+
+    serializer_class = None
+
+    @extend_schema(
+        responses={
+            200: HydroSystemSerializer(many=True),
+        },
+    )
     def get(self, request):
         user_systems = request.user.systems.all()
         serializer = HydroSystemSerializer(user_systems, many=True)

@@ -22,3 +22,14 @@ class HydroSystemSerializer(serializers.ModelSerializer):
     class Meta:
         model = HydroSystem
         fields = "__all__"
+
+
+class CreateSystemSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    description = serializers.CharField()
+
+
+class ErrorMessageSerializer(serializers.Serializer):
+    error = serializers.CharField()
+    errorMessage = serializers.CharField()
+    name = serializers.CharField()

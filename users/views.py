@@ -5,7 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
-from users.serializers import UserLoginSerializer, UserRegisterSerializer
+from users.serializers import (MessageSerializer, UserDetailSerializer,
+                               UserLoginResponseSerializer,
+                               UserLoginSerializer, UserRegisterSerializer)
 
 
 class UserRegisterView(APIView):
@@ -17,14 +19,7 @@ class UserRegisterView(APIView):
     @extend_schema(
         request=UserRegisterSerializer,
         responses={
-            200: inline_serializer(
-                name="RegisterValidResponse",
-                fields={
-                    "message": serializers.CharField(
-                        default="User created successfully."
-                    ),
-                },
-            ),
+            200: MessageSerializer,
             400: inline_serializer(
                 name="RegisterInvalidResponse",
                 fields={
@@ -54,29 +49,8 @@ class UserLoginView(APIView):
     @extend_schema(
         request=UserLoginSerializer,
         responses={
-            200: inline_serializer(
-                name="LoginValidResponse",
-                fields={
-                    "message": serializers.CharField(default="Login successful."),
-                    "user": inline_serializer(
-                        name="User",
-                        fields={
-                            "id": serializers.IntegerField(default=1),
-                            "username": serializers.CharField(default="test_user"),
-                        },
-                    ),
-                    "jwt_access_token": serializers.CharField(default="jwt_access"),
-                    "jwt_refresh_token": serializers.CharField(default="jwt_refresh"),
-                },
-            ),
-            400: inline_serializer(
-                name="LoginInvalidResponse",
-                fields={
-                    "message": serializers.CharField(
-                        default="Missing username or password."
-                    ),
-                },
-            ),
+            200: UserLoginResponseSerializer,
+            400: MessageSerializer,
         },
     )
     def post(self, request):
@@ -123,12 +97,7 @@ class UserLogoutView(APIView):
 
     @extend_schema(
         responses={
-            200: inline_serializer(
-                name="LogoutValidResponse",
-                fields={
-                    "message": serializers.CharField(default="User logged out."),
-                },
-            )
+            200: MessageSerializer,
         }
     )
     def post(self, request):
@@ -142,17 +111,7 @@ class UserDetailView(APIView):
 
     serializer_class = None
 
-    @extend_schema(
-        responses={
-            200: inline_serializer(
-                name="UserDetailValidResponse",
-                fields={
-                    "id": serializers.IntegerField(default=1),
-                    "username": serializers.CharField(default="test_user"),
-                },
-            ),
-        }
-    )
+    @extend_schema(responses={200: UserDetailSerializer})
     def get(self, request):
         response_data = {"id": request.user.id, "username": request.user.username}
         return Response(response_data, status=status.HTTP_200_OK)
