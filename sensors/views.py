@@ -1,12 +1,28 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from systems.serializers import ErrorMessageSerializer
+from users.serializers import MessageSerializer
+
 from .models import Measurement, Sensor, SensorTypes
-from .serializers import SensorSerializer
+from .serializers import (AddMeasurementSerializer, AddSensorSerializer,
+                          SensorSerializer)
 
 
 class SensorCreateView(APIView):
+    """Add new sensor to existing system."""
+
+    serializer_class = AddSensorSerializer
+
+    @extend_schema(
+        responses={
+            201: SensorSerializer,
+            400: ErrorMessageSerializer,
+            404: ErrorMessageSerializer,
+        },
+    )
     def post(self, request):
         data, error = self.clean(request.data)
         if error:
@@ -65,6 +81,16 @@ class SensorCreateView(APIView):
 
 
 class SensorRemoveView(APIView):
+    """Remove sensor from user's system."""
+
+    serializer_class = None
+
+    @extend_schema(
+        responses={
+            200: MessageSerializer,
+            404: ErrorMessageSerializer,
+        },
+    )
     def delete(self, request, id):
         user_systems = request.user.systems.all()
         sensors = Sensor.objects.filter(system__in=user_systems)
@@ -84,6 +110,16 @@ class SensorRemoveView(APIView):
 
 
 class SensorListView(APIView):
+    """List all sensors in specified system."""
+
+    serializer_class = None
+
+    @extend_schema(
+        responses={
+            200: SensorSerializer(many=True),
+            400: ErrorMessageSerializer,
+        },
+    )
     def get(self, request, id):
         user_systems = request.user.systems.all()
         target_system = user_systems.filter(id=id)
@@ -100,6 +136,17 @@ class SensorListView(APIView):
 
 
 class MeasurementCreateView(APIView):
+    """Create new measurement."""
+
+    serializer_class = AddMeasurementSerializer
+
+    @extend_schema(
+        responses={
+            200: MessageSerializer,
+            400: ErrorMessageSerializer,
+            404: ErrorMessageSerializer,
+        },
+    )
     def post(self, request, id):
         data, error = self.clean(request.data)
         if error:
@@ -127,7 +174,8 @@ class MeasurementCreateView(APIView):
             return Response(response_data, status=status.HTTP_404_NOT_FOUND)
 
         Measurement.objects.create(sensor=sensor, value=data.get("value"))
-        return Response(status=status.HTTP_201_CREATED)
+        response_data = {"message": "Measurement added to the database."}
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     def clean(self, data: dict) -> (dict, int | None):
         sensor_id = data.get("sensor_id")

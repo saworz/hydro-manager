@@ -16,7 +16,7 @@ class SystemCreateView(APIView):
     serializer_class = CreateSystemSerializer
 
     @extend_schema(
-        responses={200: HydroSystemSerializer, 400: ErrorMessageSerializer},
+        responses={201: HydroSystemSerializer, 400: ErrorMessageSerializer},
     )
     def post(self, request):
         data, error = self.clean(request.data)
@@ -61,7 +61,11 @@ class SystemDetailView(APIView):
     serializer_class = None
 
     @extend_schema(
-        responses={200: HydroMeasurementsSerializer, 400: ErrorMessageSerializer},
+        responses={
+            200: HydroMeasurementsSerializer,
+            400: ErrorMessageSerializer,
+            404: ErrorMessageSerializer,
+        },
     )
     def get(self, request, id):
         user_systems = request.user.systems.all()
@@ -84,7 +88,11 @@ class SystemUpdateView(APIView):
     serializer_class = None
 
     @extend_schema(
-        responses={200: HydroSystemSerializer, 400: ErrorMessageSerializer},
+        responses={
+            200: HydroSystemSerializer,
+            400: ErrorMessageSerializer,
+            404: ErrorMessageSerializer,
+        },
     )
     def patch(self, request, id):
         user_systems = request.user.systems.all()
@@ -124,7 +132,11 @@ class SystemDeleteView(APIView):
     serializer_class = None
 
     @extend_schema(
-        responses={200: MessageSerializer, 400: ErrorMessageSerializer},
+        responses={
+            200: MessageSerializer,
+            400: ErrorMessageSerializer,
+            404: ErrorMessageSerializer,
+        },
     )
     def delete(self, request, id):
         user_systems = request.user.systems.all()
