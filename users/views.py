@@ -1,16 +1,37 @@
 from django.contrib.auth import authenticate, login, logout
-from rest_framework import status
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
-from users.serializers import UserLoginSerializer, UserRegisterSerializer
+from users.serializers import (MessageSerializer, UserDetailSerializer,
+                               UserLoginResponseSerializer,
+                               UserLoginSerializer, UserRegisterSerializer)
 
 
 class UserRegisterView(APIView):
+    """Register new user with username and password."""
+
     permission_classes = []
     authentication_classes = []
 
+    @extend_schema(
+        request=UserRegisterSerializer,
+        responses={
+            200: MessageSerializer,
+            400: inline_serializer(
+                name="RegisterInvalidResponse",
+                fields={
+                    "username": serializers.ListField(
+                        child=serializers.CharField(
+                            default="user with this username already exists."
+                        )
+                    )
+                },
+            ),
+        },
+    )
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -20,9 +41,18 @@ class UserRegisterView(APIView):
 
 
 class UserLoginView(APIView):
+    """Login user with username and password."""
+
     permission_classes = []
     authentication_classes = []
 
+    @extend_schema(
+        request=UserLoginSerializer,
+        responses={
+            200: UserLoginResponseSerializer,
+            400: MessageSerializer,
+        },
+    )
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
 
@@ -59,9 +89,17 @@ class UserLoginView(APIView):
 
 
 class UserLogoutView(APIView):
+    """Logout currently authenticated user."""
+
     permission_classes = []
     authentication_classes = []
+    serializer_class = None
 
+    @extend_schema(
+        responses={
+            200: MessageSerializer,
+        }
+    )
     def post(self, request):
         logout(request)
         response_data = {"message": "User logged out."}
@@ -69,6 +107,11 @@ class UserLogoutView(APIView):
 
 
 class UserDetailView(APIView):
+    """Get currently authenticated user's details."""
+
+    serializer_class = None
+
+    @extend_schema(responses={200: UserDetailSerializer})
     def get(self, request):
         response_data = {"id": request.user.id, "username": request.user.username}
         return Response(response_data, status=status.HTTP_200_OK)

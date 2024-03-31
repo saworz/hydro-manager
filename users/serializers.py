@@ -23,3 +23,19 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+
+
+class MessageSerializer(serializers.Serializer):
+    message = serializers.CharField()
+
+
+class UserDetailSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+
+
+class UserLoginResponseSerializer(serializers.Serializer):
+    message = serializers.CharField()
+    user = UserDetailSerializer()
+    jwt_access_token = serializers.CharField()
+    jwt_refresh_token = serializers.CharField()
