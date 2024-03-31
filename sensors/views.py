@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -83,5 +84,43 @@ class SensorRemoveView(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
+class SensorListView(APIView):
+    def get(self, request, id):
+        user_systems = request.user.systems.all()
+        target_system = user_systems.filter(id=id)
+        if not target_system:
+            response_data = {
+                "error": "INVALID_ID",
+                "errorMessage": "System with this ID doesn't exist or you don't have permission to access it.",
+                "id": id,
+            }
+            return Response(response_data, status=status.HTTP_404_NOT_FOUND)
+        sensors = Sensor.objects.filter(system__in=target_system)
+        serializer = SensorSerializer(sensors, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class MeasurementCreateView(APIView):
-    pass
+    def post(self, request, id):
+        user_systems = request.user.systems.all()
+        target_system = user_systems.filter(id=id)
+        if not target_system:
+            response_data = {
+                "error": "INVALID_ID",
+                "errorMessage": "System with this ID doesn't exist or you don't have permission to access it.",
+                "id": id,
+            }
+            return Response(response_data, status=status.HTTP_404_NOT_FOUND)
+
+        sensors = Sensor.objects.filter(system__in=target_system)
+        measured_at = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+        for measurement in request.data:
+            sensor_id = measurement["sensor_id"]
+            value = measurement["value"]
+            sensor = sensors.filter(id=sensor_id).first()
+            if sensor:
+                Measurement.objects.create(
+                    sensor=sensor, value=value, measured_at=measured_at
+                )
+
+        return Response(status=status.HTTP_201_CREATED)

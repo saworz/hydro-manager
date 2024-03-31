@@ -24,4 +24,5 @@ class Measurement(models.Model):
     sensor = models.ForeignKey(
         Sensor, on_delete=models.CASCADE, related_name="measurement"
     )
-    value = models.DecimalField(max_digits=5, decimal_places=2)
+    value = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    measured_at = models.DateTimeField()
