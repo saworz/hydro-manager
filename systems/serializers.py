@@ -8,7 +8,7 @@ from .models import HydroSystem
 class HydroMeasurementsSerializer(serializers.ModelSerializer):
     newest_measurements = serializers.SerializerMethodField()
 
-    def get_newest_measurements(self, obj) -> list:
+    def get_newest_measurements(self, obj) -> MeasurementSerializer(many=True):
         measurements = obj.get_last_ten_measurements()
         serializer = MeasurementSerializer(measurements, many=True)
         return serializer.data
