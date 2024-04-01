@@ -25,7 +25,7 @@ python -m venv env
 
 ### Clone repository
 ```
-git clone https://github.com/saworz/hydro-manager
+git clone https://github.com/saworz/hydro
 ```
 
 ### Install dependencies
