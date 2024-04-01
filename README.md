@@ -103,7 +103,7 @@ python manage.py populatedb
 ### 3.5) Now you can go back to system details and check last 10 measurements
 ![read-details-image](https://github.com/saworz/images/blob/main/system-details.png?raw=true)
 
-### 3.6) There are also some other endpoints for to update or read your systems and sensors
+### 3.6) There are also some other endpoints for updating or reading your systems and sensors
 --------------
 ## 3) Tests
 ### To run tests execute
