@@ -31,7 +31,7 @@ git clone https://github.com/saworz/hydro
 
 ### 1.3) Install dependencies (or go to 1.7 and use docker)
 ```
-cd hydro-manager
+cd hydro
 pip install -r requirements.txt
 pip install -r requirements_dev.txt
 ```
