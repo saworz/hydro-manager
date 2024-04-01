@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -85,9 +86,10 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "hydro",
         "USER": "postgres",
+        "HOST": os.environ.get("DB_HOST", "localhost"),
         "PASSWORD": "hydro",
         "PORT": "5432",
-    }
+    },
 }
 
 

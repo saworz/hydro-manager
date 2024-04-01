@@ -1,26 +1,37 @@
 version: "3.9"
 
 services:
-  db:
-    image: postgres
-    volumes:
-      - ./data/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=hydro
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=hydro
-    ports:
-      - "5432:5432"
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./hydro:/hydro/code
     ports:
       - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - POSTGRES_DB=hydro
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=hydro
+
+  db:
+    image: postgres
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=hydro
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=hydro
-    depends_on:
-      - db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
