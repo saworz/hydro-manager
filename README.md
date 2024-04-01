@@ -9,7 +9,7 @@ License: MIT
 
 ## Project Setup
 
-### Install virtual environment
+### Install virtual environment (or scroll down and use docker)
 
 - To isolate the dependencies of this project, it's recommended to use a virtual environment.
 
@@ -25,7 +25,7 @@ python -m venv env
 
 ### Clone repository
 ```
-git clone https://github.com/saworz/hydro-manager
+git clone https://github.com/saworz/hydro
 ```
 
 ### Install dependencies
@@ -50,3 +50,14 @@ python manage.py migrate
 ```
 python manage.py runserver
 ```
+
+--------------
+
+### Or just run it in docker network
+```
+git clone https://github.com/saworz/hydro
+cd hydro
+docker-compose up
+docker-compose run web python3 manage.py migrate
+```
+
